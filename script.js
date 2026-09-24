@@ -457,11 +457,23 @@ function draw() {
   glassPath();
   ctx.clip();
   // 砂粒子
+  const particlesByColor = new Map();
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
+    let coloredParticles = particlesByColor.get(p.color);
+    if (!coloredParticles) {
+      coloredParticles = [];
+      particlesByColor.set(p.color, coloredParticles);
+    }
+    coloredParticles.push(p);
+  }
+  for (const [color, coloredParticles] of particlesByColor) {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
+    for (const p of coloredParticles) {
+      ctx.moveTo(p.x + p.r, p.y);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = color;
     ctx.fill();
   }
   ctx.restore();
