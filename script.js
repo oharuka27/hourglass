@@ -71,6 +71,8 @@ const SLEEP_SPEED_THRESHOLD = 20; // px/s
 const SLEEP_TIME_REQUIRED = 0.3; // 秒
 // 休止中の粒子は、これを超える速さで近づいてくる衝突を受けたときだけ目を覚ます
 const WAKE_VELOCITY_THRESHOLD = 80; // px/s
+const POINTER_REPULSION_RADIUS = 116;
+const POINTER_REPULSION_STRENGTH = 1800;
 
 const REF_PARTICLE_COUNT = 2000;
 const BASE_RADIUS = 3.2;
@@ -85,6 +87,8 @@ let cellSize = PARTICLE_RADIUS * 2.2;
 let gridCols = 1;
 let gridRows = 1;
 let grid = [];
+let pointerRepulsion = null;
+let pointerTap = null;
 
 class Particle {
   constructor(x, y, r) {
@@ -356,6 +360,30 @@ function resolveParticleCollisions() {
   }
 }
 
+function applyPointerRepulsion(dt) {
+  if (!pointerRepulsion) return;
+  const radius = POINTER_REPULSION_RADIUS;
+  const radiusSquared = radius * radius;
+  for (const p of particles) {
+    const dx = p.x - pointerRepulsion.x;
+    const dy = p.y - pointerRepulsion.y;
+    const distanceSquared = dx * dx + dy * dy;
+    if (distanceSquared >= radiusSquared) continue;
+
+    const distance = Math.sqrt(distanceSquared);
+    const falloff = 1 - distance / radius;
+    const nx = distance > 1e-6 ? dx / distance : 0;
+    const ny = distance > 1e-6 ? dy / distance : -1;
+    const impulse = POINTER_REPULSION_STRENGTH * falloff * dt;
+    p.vx += nx * impulse;
+    p.vy += ny * impulse;
+    if (p.resting) {
+      p.resting = false;
+      p.restTimer = 0;
+    }
+  }
+}
+
 // ------------------------------------------------------------------
 // シミュレーションステップ
 // ------------------------------------------------------------------
@@ -365,6 +393,7 @@ function step(dt) {
 
   for (let s = 0; s < SUBSTEPS; s++) {
     buildGrid();
+    applyPointerRepulsion(subDt);
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       if (p.resting && !isParticleSupported(p)) {
@@ -526,6 +555,59 @@ const particleCountInput = document.getElementById("particleCount");
 const particleCountValue = document.getElementById("particleCountValue");
 const resetBtn = document.getElementById("resetBtn");
 const flipBtn = document.getElementById("flipBtn");
+const hourglassBtn = document.getElementById("hourglassBtn");
+const scene = document.querySelector?.(".scene");
+
+function getCanvasPoint(event) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) * W / rect.width,
+    y: (event.clientY - rect.top) * H / rect.height,
+  };
+}
+
+function isInsideGlass(point) {
+  if (point.y < TOP_Y || point.y > BOTTOM_Y) return false;
+  return point.x >= leftBoundAt(point.y) && point.x <= rightBoundAt(point.y);
+}
+
+function updatePointerRepulsion(event) {
+  const point = getCanvasPoint(event);
+  pointerRepulsion = { ...point, pointerId: event.pointerId };
+}
+
+function stopPointerRepulsion(event) {
+  if (!pointerRepulsion || event.pointerId === pointerRepulsion.pointerId) {
+    pointerRepulsion = null;
+  }
+}
+
+function finishPointerTap(event) {
+  if (pointerTap?.pointerId === event.pointerId) {
+    pointerTap.releasedInside = isInsideGlass(getCanvasPoint(event));
+  }
+  stopPointerRepulsion(event);
+}
+
+hourglassBtn.addEventListener("pointerdown", event => {
+  const point = getCanvasPoint(event);
+  pointerTap = { pointerId: event.pointerId, insideGlass: isInsideGlass(point) };
+  if (pointerTap.insideGlass) updatePointerRepulsion(event);
+  hourglassBtn.setPointerCapture?.(event.pointerId);
+});
+hourglassBtn.addEventListener("pointermove", event => {
+  if (pointerTap?.insideGlass && pointerTap.pointerId === event.pointerId) {
+    updatePointerRepulsion(event);
+  }
+});
+hourglassBtn.addEventListener("pointerup", finishPointerTap);
+hourglassBtn.addEventListener("pointercancel", event => {
+  stopPointerRepulsion(event);
+  pointerTap = null;
+});
+hourglassBtn.addEventListener("lostpointercapture", event => {
+  stopPointerRepulsion(event);
+});
 
 const neckWidthInput = document.getElementById("neckWidth");
 const neckWidthValue = document.getElementById("neckWidthValue");
@@ -593,7 +675,19 @@ function flipHourglass() {
   }
 }
 flipBtn.addEventListener("click", flipHourglass);
-document.getElementById("hourglassBtn").addEventListener("click", flipHourglass);
+hourglassBtn.addEventListener("click", event => {
+  if (pointerTap?.insideGlass || pointerTap?.releasedInside) {
+    event.preventDefault();
+    pointerTap = null;
+    return;
+  }
+  pointerTap = null;
+  flipHourglass();
+});
+scene?.addEventListener("click", event => {
+  if (event.target.closest("#hourglassBtn")) return;
+  flipHourglass();
+});
 
 // ------------------------------------------------------------------
 // 起動
