@@ -79,7 +79,34 @@ const BASE_RADIUS = 3.2;
 const MIN_RADIUS = 1.3;
 const MAX_RADIUS = 4.5;
 
-const SAND_COLORS = ["#d5ae70", "#e5c58c", "#c6a069", "#efdaa7", "#ddbb82"];
+const THEMES = {
+  room: {
+    label: "部屋",
+    colors: ["#d5ae70", "#e5c58c", "#c6a069", "#efdaa7", "#ddbb82"],
+    accent: "#697c59",
+  },
+  sunset: {
+    label: "夕焼け",
+    colors: ["#d86f4f", "#ee9a61", "#f3c276", "#c85d56", "#f6d49a"],
+    accent: "#b86152",
+  },
+  seaside: {
+    label: "海辺",
+    colors: ["#d6b26e", "#ead394", "#b9d9cf", "#8fc8c6", "#f1e1ae"],
+    accent: "#4e9295",
+  },
+  forest: {
+    label: "森",
+    colors: ["#b4a365", "#d1c58a", "#879c6d", "#6f865f", "#e0d5a3"],
+    accent: "#54735c",
+  },
+  night: {
+    label: "夜空",
+    colors: ["#f3d58b", "#d7b96d", "#b6c8d8", "#e8e5c4", "#91a7c3"],
+    accent: "#496789",
+  },
+};
+let activeTheme = "room";
 
 let PARTICLE_RADIUS = BASE_RADIUS;
 let particles = [];
@@ -89,6 +116,7 @@ let gridRows = 1;
 let grid = [];
 let pointerRepulsion = null;
 let pointerTap = null;
+let suppressNextFlipClick = false;
 
 class Particle {
   constructor(x, y, r) {
@@ -97,7 +125,8 @@ class Particle {
     this.vx = 0;
     this.vy = 0;
     this.r = r;
-    this.color = SAND_COLORS[(Math.random() * SAND_COLORS.length) | 0];
+    const colors = THEMES[activeTheme].colors;
+    this.color = colors[(Math.random() * colors.length) | 0];
     this.resting = false;
     this.restTimer = 0;
   }
@@ -553,10 +582,35 @@ function loop(now) {
 // ------------------------------------------------------------------
 const particleCountInput = document.getElementById("particleCount");
 const particleCountValue = document.getElementById("particleCountValue");
+const themeButtons = document.querySelectorAll?.("[data-theme-button]") || [];
 const resetBtn = document.getElementById("resetBtn");
 const flipBtn = document.getElementById("flipBtn");
 const hourglassBtn = document.getElementById("hourglassBtn");
 const scene = document.querySelector?.(".scene");
+const sceneArt = document.querySelector?.(".scene-art");
+
+function applyTheme(themeName) {
+  const theme = THEMES[themeName] || THEMES.room;
+  activeTheme = THEMES[themeName] ? themeName : "room";
+  scene?.setAttribute?.("data-theme", activeTheme);
+  document.documentElement?.style.setProperty("--accent", theme.accent);
+  for (const button of themeButtons) {
+    const selected = button.dataset?.themeButton === activeTheme;
+    button.setAttribute?.("aria-pressed", selected ? "true" : "false");
+  }
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].color = theme.colors[(Math.random() * theme.colors.length) | 0];
+  }
+  sceneArt?.setAttribute?.("aria-hidden", activeTheme === "room" ? "false" : "true");
+  draw();
+}
+
+for (const button of themeButtons) {
+  button.addEventListener("click", event => {
+    event.stopPropagation();
+    applyTheme(button.dataset.themeButton);
+  });
+}
 
 function getCanvasPoint(event) {
   const rect = canvas.getBoundingClientRect();
@@ -585,6 +639,7 @@ function stopPointerRepulsion(event) {
 function finishPointerTap(event) {
   if (pointerTap?.pointerId === event.pointerId) {
     pointerTap.releasedInside = isInsideGlass(getCanvasPoint(event));
+    if (pointerTap.releasedInside) suppressNextFlipClick = true;
   }
   stopPointerRepulsion(event);
 }
@@ -592,6 +647,7 @@ function finishPointerTap(event) {
 hourglassBtn.addEventListener("pointerdown", event => {
   const point = getCanvasPoint(event);
   pointerTap = { pointerId: event.pointerId, insideGlass: isInsideGlass(point) };
+  suppressNextFlipClick = pointerTap.insideGlass;
   if (pointerTap.insideGlass) updatePointerRepulsion(event);
   hourglassBtn.setPointerCapture?.(event.pointerId);
 });
@@ -604,6 +660,7 @@ hourglassBtn.addEventListener("pointerup", finishPointerTap);
 hourglassBtn.addEventListener("pointercancel", event => {
   stopPointerRepulsion(event);
   pointerTap = null;
+  suppressNextFlipClick = false;
 });
 hourglassBtn.addEventListener("lostpointercapture", event => {
   stopPointerRepulsion(event);
@@ -676,12 +733,14 @@ function flipHourglass() {
 }
 flipBtn.addEventListener("click", flipHourglass);
 hourglassBtn.addEventListener("click", event => {
-  if (pointerTap?.insideGlass || pointerTap?.releasedInside) {
+  if (suppressNextFlipClick || pointerTap?.insideGlass || pointerTap?.releasedInside) {
     event.preventDefault();
     pointerTap = null;
+    suppressNextFlipClick = false;
     return;
   }
   pointerTap = null;
+  suppressNextFlipClick = false;
   flipHourglass();
 });
 scene?.addEventListener("click", event => {
@@ -692,5 +751,6 @@ scene?.addEventListener("click", event => {
 // ------------------------------------------------------------------
 // 起動
 // ------------------------------------------------------------------
+applyTheme("room");
 initParticles(parseInt(particleCountInput.value, 10));
 requestAnimationFrame(loop);
