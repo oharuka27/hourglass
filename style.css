@@ -95,6 +95,10 @@ canvas { display: block; width: 100%; height: auto; }
 button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #697c59; outline-offset: 5px; }
 .flip-hint { margin: 18px 0 0; font-size: 16px; color: #5c6b4b; }
 .flip-hint .hint-icon { margin-right: 7px; font-size: 24px; vertical-align: -2px; }
+.desktop-pointer-hint { display: none; font-size: 16px; }
+@media (min-width: 601px) and (hover: hover) and (pointer: fine) {
+  .desktop-pointer-hint { display: inline; }
+}
 .controls { max-width: 500px; margin: 22px auto 0; }
 .control-row { display: flex; align-items: center; gap: 18px; font-size: 17px; }
 .size-buttons { display: flex; flex: 1; gap: 8px; }
@@ -117,10 +121,11 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
   body { padding: 28px 16px 24px; }
   .scene { border-radius: 70px 70px 24px 24px; }
   .scene-art { mask-image: linear-gradient(transparent, #000 15%); }
-  .theme-buttons { top: 12px; width: 96%; gap: 3px; }
+  .theme-buttons { top: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(80%, 360px); gap: 5px; }
+  .theme-button[data-theme-button="seaside"],
+  .theme-button[data-theme-button="forest"] { display: none; }
   .theme-button { min-height: 44px; padding: 6px 2px; font-size: 14px; }
   .hourglass { width: 43%; bottom: 3%; }
-  .desktop-pointer-hint { display: none; }
   .buttons { gap: 10px; }
   .buttons button { font-size: 16px; }
   .control-row { gap: 12px; }
