@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f8f5ef">
 <title>砂で ひと息</title>
+<link rel="preload" as="image" href="assets/quiet-corner.png" fetchpriority="high">
+<link rel="preload" as="image" href="assets/sunset-painterly.png">
+<link rel="preload" as="image" href="assets/night-painterly.png">
+<link rel="preload" as="image" href="assets/seaside-painterly.png" media="(min-width: 601px)">
+<link rel="preload" as="image" href="assets/forest-painterly.png" media="(min-width: 601px)">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,7 +32,7 @@
         <canvas id="canvas" width="520" height="760">砂時計をひっくり返す</canvas>
       </button>
     </section>
-    <p class="flip-hint" id="flipHint"><span class="desktop-pointer-hint"><span class="hint-icon" aria-hidden="true">↔</span>砂時計の内をタップすると、砂がよけます<br></span><span class="hint-icon" aria-hidden="true">↻</span>砂時計の外をタップすると、時計がひっくり返ります</p>
+    <p class="flip-hint" id="flipHint"><span class="hint-line desktop-pointer-hint"><span class="hint-icon" aria-hidden="true">↔</span>砂時計の内をタップすると、砂がよけます</span> <span class="hint-line"><span class="hint-icon" aria-hidden="true">↻</span>砂時計の外をタップすると、時計がひっくり返ります</span></p>
     <span id="flipStatus" class="sr-only" role="status"></span>
     <section class="controls" aria-label="砂時計の設定">
       <div class="control-row size-control" role="group" aria-labelledby="particleSizeLabel">
@@ -42,7 +47,7 @@
         <input type="range" id="particleCount" min="300" max="1000" step="50" value="500">
         <span id="particleCountValue">500</span>
       </label>
-      <label class="control-row neck-control" for="neckWidth">
+      <label class="control-row" for="neckWidth">
         <span>くびれの幅</span>
         <input type="range" id="neckWidth" min="12" max="80" step="2" value="28">
         <span id="neckWidthValue">28</span>
