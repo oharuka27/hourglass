@@ -82,27 +82,27 @@ const MAX_RADIUS = 4.5;
 const THEMES = {
   room: {
     label: "部屋",
-    colors: ["#d5ae70", "#e5c58c", "#c6a069", "#efdaa7", "#ddbb82"],
+    colors: ["#a97f49", "#ba9259", "#c9a66b", "#d6b982", "#e0c997"],
     accent: "#697c59",
   },
   sunset: {
     label: "夕焼け",
-    colors: ["#d86f4f", "#ee9a61", "#f3c276", "#c85d56", "#f6d49a"],
+    colors: ["#a97848", "#bb8955", "#c99c67", "#d8b47d", "#e2c694"],
     accent: "#b86152",
   },
   seaside: {
     label: "海辺",
-    colors: ["#d6b26e", "#ead394", "#b9d9cf", "#8fc8c6", "#f1e1ae"],
+    colors: ["#a98654", "#bb9965", "#cbae78", "#d8bf8d", "#e3d0a5"],
     accent: "#4e9295",
   },
   forest: {
     label: "森",
-    colors: ["#b4a365", "#d1c58a", "#879c6d", "#6f865f", "#e0d5a3"],
+    colors: ["#967747", "#a98a54", "#b99d68", "#c9b27d", "#d7c493"],
     accent: "#54735c",
   },
   night: {
     label: "夜空",
-    colors: ["#f3d58b", "#d7b96d", "#b6c8d8", "#e8e5c4", "#91a7c3"],
+    colors: ["#9b7c4d", "#ad8d58", "#bea16b", "#cdb57e", "#d8c693"],
     accent: "#496789",
   },
 };
@@ -526,6 +526,15 @@ function draw() {
     coloredParticles.push(p);
   }
   for (const [color, coloredParticles] of particlesByColor) {
+    // 粒の下側にごく小さな影を置き、背景から浮いて見えるのを抑える。
+    ctx.beginPath();
+    for (const p of coloredParticles) {
+      ctx.moveTo(p.x + p.r, p.y + p.r * 0.2);
+      ctx.arc(p.x, p.y + p.r * 0.2, p.r, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = "rgba(76, 52, 29, .22)";
+    ctx.fill();
+
     ctx.beginPath();
     for (const p of coloredParticles) {
       ctx.moveTo(p.x + p.r, p.y);
@@ -534,6 +543,15 @@ function draw() {
     ctx.fillStyle = color;
     ctx.fill();
   }
+  // 左上の控えめな反射で、単色の円ではなく細かな砂粒として見せる。
+  ctx.beginPath();
+  for (const p of particles) {
+    const highlightRadius = Math.max(0.45, p.r * 0.28);
+    ctx.moveTo(p.x - p.r * 0.28 + highlightRadius, p.y - p.r * 0.28);
+    ctx.arc(p.x - p.r * 0.28, p.y - p.r * 0.28, highlightRadius, 0, Math.PI * 2);
+  }
+  ctx.fillStyle = "rgba(255, 244, 211, .28)";
+  ctx.fill();
   ctx.restore();
   ctx.strokeStyle = "rgba(255,255,255,.8)";
   ctx.lineWidth = 7;
