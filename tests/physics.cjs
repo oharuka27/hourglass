@@ -14,7 +14,10 @@ const document = {
   },
 };
 const source = fs.readFileSync(path.join(__dirname, '..', 'script.js'), 'utf8');
-new Function('document', 'performance', 'requestAnimationFrame', 'assert', source + `
+let seed = Number(process.env.PHYSICS_SEED || 42);
+const math = Object.create(Math);
+math.random = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
+new Function('document', 'performance', 'requestAnimationFrame', 'assert', 'Math', source + `
   const a = new Particle(260, 600, 3);
   const b = new Particle(260, 600, 3);
   a.resting = b.resting = true;
@@ -59,8 +62,8 @@ new Function('document', 'performance', 'requestAnimationFrame', 'assert', sourc
           1 - Math.hypot(p.x - q.x, p.y - q.y) / (p.r + q.r));
       }
     }
-    assert.ok(maxOverlap < .1, 'Particle overlap must stay below 10% of diameter');
+    assert.ok(maxOverlap < .1, 'Particle overlap must stay below 10% of diameter: ' + maxOverlap);
     finishFlip();
     console.log('PASS neck width', width, 'overlap', (maxOverlap * 100).toFixed(2) + '%');
   }
-`)(document, { now: () => 0 }, () => {}, assert);
+`)(document, { now: () => 0 }, () => {}, assert, math);

@@ -97,6 +97,10 @@ button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px 
 .flip-hint span { margin-right: 7px; font-size: 24px; vertical-align: -2px; }
 .controls { max-width: 500px; margin: 22px auto 0; }
 .control-row { display: flex; align-items: center; gap: 18px; font-size: 17px; }
+.size-buttons { display: flex; flex: 1; gap: 8px; }
+.size-buttons button { flex: 1; min-height: 44px; border: 1px solid #cfd4c4; border-radius: 24px; background: #fcfaf5; color: var(--text); font: inherit; cursor: pointer; }
+.size-buttons button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fffdf6; }
+.size-buttons button:hover { filter: brightness(.96); }
 input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 #particleCountValue { min-width: 44px; font-variant-numeric: tabular-nums; }
 .buttons { display: flex; gap: 14px; margin-top: 18px; }

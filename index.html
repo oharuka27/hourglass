@@ -30,6 +30,14 @@
     <p class="flip-hint" id="flipHint"><span aria-hidden="true">↔</span>砂時計の内をタップすると、砂がよけます<br><span aria-hidden="true">↻</span>砂時計の外をタップすると、時計がひっくり返ります</p>
     <span id="flipStatus" class="sr-only" role="status"></span>
     <section class="controls" aria-label="砂時計の設定">
+      <div class="control-row size-control" role="group" aria-labelledby="particleSizeLabel" aria-describedby="particleSizeHint">
+        <span id="particleSizeLabel">粒のサイズ</span>
+        <div class="size-buttons">
+          <button type="button" data-size="normal" aria-pressed="true">ふつう</button>
+          <button type="button" data-size="fine" aria-pressed="false">細かい</button>
+        </div>
+      </div>
+      <p class="settings-note" id="particleSizeHint">細かい粒は面積が約半分、つぶの数は2倍、くびれの幅は半分。切替時に最初から始まります</p>
       <label class="control-row" for="particleCount">
         <span>砂のつぶ</span>
         <input type="range" id="particleCount" min="300" max="1000" step="50" value="500">
