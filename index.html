@@ -10,19 +10,33 @@
 <body>
   <main class="app">
     <header class="heading">
-      <p class="eyebrow">わたしに戻る、小さな時間</p>
-      <h1>砂で ひと息<span aria-hidden="true">✳</span></h1>
-      <p class="intro">ゆっくり、じぶんのペースで。</p>
+      <h1>砂で ひと息</h1>
+      <p class="intro">ゆっくり、じぶんのペースで</p>
+      <p class="heading-message">何もしない時間も たいせつな時間</p>
     </header>
     <section class="scene" aria-label="ディフューザーとリスのぬいぐるみを添えた砂時計">
+      <div class="theme-buttons" aria-label="背景テーマ">
+        <button class="theme-button" type="button" data-theme-button="room">部屋</button>
+        <button class="theme-button" type="button" data-theme-button="sunset">夕焼け</button>
+        <button class="theme-button" type="button" data-theme-button="seaside">海辺</button>
+        <button class="theme-button" type="button" data-theme-button="forest">森</button>
+        <button class="theme-button" type="button" data-theme-button="night">夜空</button>
+      </div>
       <img class="scene-art" src="assets/quiet-corner.png" alt="透明なボトルに黒いスティックを挿したアロマディフューザーと、大きな茶色のしっぽのリスのぬいぐるみ" width="1536" height="1024">
       <button class="hourglass" id="hourglassBtn" aria-label="砂時計の上下を入れ替える" aria-describedby="flipHint">
         <canvas id="canvas" width="520" height="760">砂時計をひっくり返す</canvas>
       </button>
     </section>
-    <p class="flip-hint" id="flipHint"><span aria-hidden="true">↔</span>砂時計の内をタップすると、砂がよけます<br><span aria-hidden="true">↻</span>砂時計の外をタップすると、時計がひっくり返ります</p>
+    <p class="flip-hint" id="flipHint"><span class="desktop-pointer-hint"><span class="hint-icon" aria-hidden="true">↔</span>砂時計の内をタップすると、砂がよけます<br></span><span class="hint-icon" aria-hidden="true">↻</span>砂時計の外をタップすると、時計がひっくり返ります</p>
     <span id="flipStatus" class="sr-only" role="status"></span>
     <section class="controls" aria-label="砂時計の設定">
+      <div class="control-row size-control" role="group" aria-labelledby="particleSizeLabel">
+        <span id="particleSizeLabel">粒のサイズ</span>
+        <div class="size-buttons">
+          <button type="button" data-size="normal" aria-pressed="true">ふつう</button>
+          <button type="button" data-size="fine" aria-pressed="false">細かい</button>
+        </div>
+      </div>
       <label class="control-row" for="particleCount">
         <span>砂のつぶ</span>
         <input type="range" id="particleCount" min="300" max="1000" step="50" value="500">
@@ -30,10 +44,9 @@
       </label>
       <label class="control-row neck-control" for="neckWidth">
         <span>くびれの幅</span>
-        <input type="range" id="neckWidth" min="12" max="80" step="2" value="28" aria-describedby="neckHint">
+        <input type="range" id="neckWidth" min="12" max="80" step="2" value="28">
         <span id="neckWidthValue">28</span>
       </label>
-      <p class="settings-note" id="neckHint">左で細く、右で太く。その場で変わります</p>
       <div class="buttons">
         <button id="resetBtn">もういちど <span aria-hidden="true">↺</span></button>
         <button id="flipBtn">ひっくり返す <span aria-hidden="true">↻</span></button>
@@ -44,7 +57,6 @@
         <div class="stats"><span id="fps">FPS: --</span><span id="particleActual">配置粒子数: --</span></div>
       </details>
     </section>
-    <footer>何もしない時間も、たいせつな時間。</footer>
   </main>
   <script src="script.js"></script>
 </body>
