@@ -127,16 +127,16 @@ footer { margin-top: 26px; font-size: 15px; color: var(--muted); letter-spacing:
 #neckWidthValue { min-width: 44px; font-variant-numeric: tabular-nums; }
 
 .scene[data-theme="sunset"] {
-  background: #e9a06f url("assets/sunset-room.png") center / cover no-repeat;
+  background: #e9a06f url("assets/sunset-painterly.png") center / cover no-repeat;
 }
 .scene[data-theme="seaside"] {
-  background: #8fcbd7 url("assets/seaside-room.png") center / cover no-repeat;
+  background: #8fcbd7 url("assets/seaside-painterly.png") center / cover no-repeat;
 }
 .scene[data-theme="forest"] {
-  background: #a9c5ae url("assets/forest-room.png") center / cover no-repeat;
+  background: #a9c5ae url("assets/forest-painterly.png") center / cover no-repeat;
 }
 .scene[data-theme="night"] {
-  background: #1b3154 url("assets/night-room.png") center / cover no-repeat;
+  background: #1b3154 url("assets/night-painterly.png") center / cover no-repeat;
 }
 .scene[data-theme="sunset"] .scene-art,
 .scene[data-theme="seaside"] .scene-art,
