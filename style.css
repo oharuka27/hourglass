@@ -151,3 +151,53 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
 .scene[data-theme="seaside"] .scene-art,
 .scene[data-theme="forest"] .scene-art,
 .scene[data-theme="night"] .scene-art { display: none; }
+
+/* 夜空: 背景画像と同じ cover 配置の層に、流れ星を重ねる */
+.scene { container-type: size; }
+.night-layer {
+  display: none;
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: max(100cqw, 150cqh);
+  height: max(100cqh, 66.667cqw);
+  transform: translate(-50%, -50%);
+  container-type: size;
+  pointer-events: none;
+}
+.scene[data-theme="night"] .night-layer { display: block; }
+
+/* 流れ星: 回転した座標系の +x 方向へ流れる。先端が右端 */
+.shooting-star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--len);
+  height: var(--thick, 2px);
+  transform: rotate(var(--angle));
+  transform-origin: left center;
+}
+.shooting-star::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #cfe0ff66 60%, #fffbea);
+  box-shadow: 0 0 6px #fff6d855;
+  opacity: 0;
+  animation: shooting var(--dur) linear var(--delay) infinite;
+}
+.star-a { --x: 67%; --y: 23%; --angle: 17deg; --len: 10cqw; --dist: 20cqw; --dur: 13s; --delay: 3s; }
+.star-b { --x: 35%; --y: 15%; --angle: 122deg; --len: 7cqw; --dist: 13cqw; --dur: 21s; --delay: 9s; --thick: 1.5px; }
+.star-c { --x: 92%; --y: 34%; --angle: 150deg; --len: 9cqw; --dist: 14cqw; --dur: 34s; --delay: 19s; }
+@keyframes shooting {
+  0% { opacity: 0; transform: translateX(0) scaleX(.3); }
+  1.2% { opacity: 1; }
+  5% { opacity: .9; transform: translateX(calc(var(--dist) * .7)) scaleX(1); }
+  7%, 100% { opacity: 0; transform: translateX(var(--dist)) scaleX(.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shooting-star { display: none; }
+}
