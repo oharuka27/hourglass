@@ -152,9 +152,9 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
 .scene[data-theme="forest"] .scene-art,
 .scene[data-theme="night"] .scene-art { display: none; }
 
-/* 夜空: 背景画像と同じ cover 配置の層に、流れ星を重ねる */
+/* 森・夜空: 背景画像と同じ cover 配置の層に、木洩れ日や流れ星を重ねる */
 .scene { container-type: size; }
-.night-layer {
+.night-layer, .forest-layer {
   display: none;
   position: absolute;
   z-index: 0;
@@ -166,7 +166,8 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
   container-type: size;
   pointer-events: none;
 }
-.scene[data-theme="night"] .night-layer { display: block; }
+.scene[data-theme="night"] .night-layer,
+.scene[data-theme="forest"] .forest-layer { display: block; }
 
 /* 流れ星: 回転した座標系の +x 方向へ流れる。先端が右端 */
 .shooting-star {
@@ -198,6 +199,52 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
   7%, 100% { opacity: 0; transform: translateX(var(--dist)) scaleX(.6); }
 }
 
+/* 木洩れ日: 机の天板（画像の約69%から下）に、ノイズで作った光斑と葉の影を重ね、
+   別々の周期で揺らす。層を左右に広げておき、動いても端が見えないようにする */
+.dapple {
+  position: absolute;
+  top: 66%;
+  bottom: -4%;
+  left: -8%;
+  right: -8%;
+  background: center / 100% 100% no-repeat;
+  /* 中央はそのまま、左右の端と手前に向かって効果を4割ほどまで弱める */
+  mask-image:
+    linear-gradient(transparent, #000 12%),
+    radial-gradient(ellipse 55% 85% at 50% 35%, #000 40%, #0006 75%, #0004 100%);
+  mask-composite: intersect;
+}
+.dapple-light {
+  background-image: url("assets/dapple-light.svg");
+  mix-blend-mode: overlay;
+  animation: dapple-sway-light 16s ease-in-out infinite, dapple-shimmer 13s ease-in-out infinite;
+}
+.dapple-shadow {
+  background-image: url("assets/dapple-shadow.svg");
+  mix-blend-mode: multiply;
+  opacity: .75;
+  animation: dapple-sway-shadow 21s ease-in-out infinite;
+}
+@keyframes dapple-sway-light {
+  0%, 100% { transform: translate(0, 0) skewX(0deg); }
+  22% { transform: translate(2.6cqw, .6cqh) skewX(-1.5deg); }
+  41% { transform: translate(.8cqw, -.4cqh) skewX(.8deg); }
+  63% { transform: translate(-2.2cqw, .5cqh) skewX(1.8deg); }
+  82% { transform: translate(-.6cqw, -.3cqh) skewX(-.8deg); }
+}
+@keyframes dapple-sway-shadow {
+  0%, 100% { transform: translate(0, 0) skewX(0deg); }
+  27% { transform: translate(-3cqw, .7cqh) skewX(1.5deg); }
+  52% { transform: translate(1.4cqw, -.5cqh) skewX(-1deg); }
+  76% { transform: translate(3.2cqw, .4cqh) skewX(-1.8deg); }
+}
+@keyframes dapple-shimmer {
+  0%, 100% { opacity: .95; }
+  35% { opacity: .6; }
+  65% { opacity: .85; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .dapple { animation: none; }
   .shooting-star { display: none; }
 }
