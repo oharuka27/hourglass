@@ -87,6 +87,8 @@ h1 {
   border-radius: 45%;
   background: transparent;
   cursor: pointer;
+  /* タッチのドラッグをスクロールに奪われず、砂をよけ続けられるようにする */
+  touch-action: none;
   -webkit-tap-highlight-color: transparent;
 }
 .hourglass::after { content: ""; position: absolute; z-index: -1; left: 8%; right: 8%; bottom: 3%; height: 4%; background: #786b4930; border-radius: 50%; filter: blur(6px); }

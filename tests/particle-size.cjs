@@ -20,66 +20,60 @@ const document = {
     };
   },
 };
-// 固定シードで変更前後の測定と衝突の回帰検証を再現可能にする。
+// 固定シードで性能測定と衝突の回帰検証を再現可能にする。
 let seed = 42;
 const math = Object.create(Math);
 math.random = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
-const source = fs.readFileSync(process.env.SIM_SOURCE || path.join(__dirname, '..', 'script.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '..', 'script.js'), 'utf8');
 new Function('document', 'performance', 'requestAnimationFrame', 'assert', 'Math', source + `
-  const hasSizeControl = typeof applyParticleSize === 'function';
-  if (hasSizeControl) {
-    for (const n of [300, 500, 1000]) {
-      const normal = computeRadius(n, 'normal');
-      const fine = computeRadius(n * 2, 'fine');
-      assert.ok(Math.abs(fine * fine / (normal * normal) - .5) < 1e-10);
-    }
-    sizeButtons[1].click();
-    assert.equal(particleSize, 'fine');
-    assert.equal(particleCountInput.min, '600');
-    assert.equal(particleCountInput.max, '2000');
-    assert.equal(particleCountInput.step, '100');
-    assert.equal(particleCountInput.value, '1000');
-    assert.equal(neckWidthInput.min, '6');
-    assert.equal(neckWidthInput.max, '40');
-    assert.equal(neckWidthInput.step, '1');
-    assert.equal(neckWidthInput.value, '14');
-    assert.equal(NECK_HALF_WIDTH, 7);
-    neckWidthInput.value = '6';
-    neckWidthInput.input();
-    assert.equal(NECK_HALF_WIDTH, 3);
-    assert.equal(neckWidthValue.textContent, '6');
-    neckWidthInput.value = '40';
-    neckWidthInput.input();
-    assert.equal(NECK_HALF_WIDTH, 20);
-    assert.equal(neckWidthValue.textContent, '40');
-    neckWidthInput.value = '14';
-    neckWidthInput.input();
-    assert.equal(particles.length, 1000);
-    assert.equal(sizeButtons[1]['aria-pressed'], 'true');
-    particleCountInput.value = '2000';
-    resetBtn.click();
-    assert.equal(particles.length, 2000);
-    sizeButtons[0].click();
-    assert.equal(particles.length, 1000);
-    assert.equal(particleCountInput.value, '1000');
-    assert.equal(particleCountInput.min, '300');
-    assert.equal(particleCountInput.max, '1000');
-    assert.equal(particleCountInput.step, '50');
-    assert.equal(neckWidthInput.min, '12');
-    assert.equal(neckWidthInput.max, '80');
-    assert.equal(neckWidthInput.step, '2');
-    assert.equal(neckWidthInput.value, '28');
-    assert.equal(NECK_HALF_WIDTH, 14);
-    sizeButtons[1].click();
-    flipStarted = 10;
-    sizeButtons[0].click();
-    assert.equal(flipStarted, null);
-    assert.equal(flipAngle, 0);
-    sizeButtons[1].click();
-  } else {
-    // 変更前も同じ半径・個数で測定する。
-    computeRadius = () => 4.5 * Math.SQRT1_2;
-  }
+  // 「細かい」は1粒の面積が「ふつう」の半分になる。
+  const normalRadius = computeRadius('normal');
+  const fineRadius = computeRadius('fine');
+  assert.equal(normalRadius, 4.5);
+  assert.ok(Math.abs(fineRadius * fineRadius / (normalRadius * normalRadius) - .5) < 1e-10);
+  sizeButtons[1].click();
+  assert.equal(particleSize, 'fine');
+  assert.equal(particleCountInput.min, '600');
+  assert.equal(particleCountInput.max, '2000');
+  assert.equal(particleCountInput.step, '100');
+  assert.equal(particleCountInput.value, '1000');
+  assert.equal(neckWidthInput.min, '6');
+  assert.equal(neckWidthInput.max, '40');
+  assert.equal(neckWidthInput.step, '1');
+  assert.equal(neckWidthInput.value, '14');
+  assert.equal(NECK_HALF_WIDTH, 7);
+  neckWidthInput.value = '6';
+  neckWidthInput.input();
+  assert.equal(NECK_HALF_WIDTH, 3);
+  assert.equal(neckWidthValue.textContent, '6');
+  neckWidthInput.value = '40';
+  neckWidthInput.input();
+  assert.equal(NECK_HALF_WIDTH, 20);
+  assert.equal(neckWidthValue.textContent, '40');
+  neckWidthInput.value = '14';
+  neckWidthInput.input();
+  assert.equal(particles.length, 1000);
+  assert.equal(sizeButtons[1]['aria-pressed'], 'true');
+  particleCountInput.value = '2000';
+  resetBtn.click();
+  assert.equal(particles.length, 2000);
+  sizeButtons[0].click();
+  assert.equal(particles.length, 1000);
+  assert.equal(particleCountInput.value, '1000');
+  assert.equal(particleCountInput.min, '300');
+  assert.equal(particleCountInput.max, '1000');
+  assert.equal(particleCountInput.step, '50');
+  assert.equal(neckWidthInput.min, '12');
+  assert.equal(neckWidthInput.max, '80');
+  assert.equal(neckWidthInput.step, '2');
+  assert.equal(neckWidthInput.value, '28');
+  assert.equal(NECK_HALF_WIDTH, 14);
+  sizeButtons[1].click();
+  flipStarted = 10;
+  sizeButtons[0].click();
+  assert.equal(flipStarted, null);
+  assert.equal(flipAngle, 0);
+  sizeButtons[1].click();
 
   function checkGeometry(label) {
     assert.equal(particles.length, 2000);

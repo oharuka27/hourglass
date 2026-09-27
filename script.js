@@ -80,10 +80,8 @@ const WAKE_VELOCITY_THRESHOLD = 80; // px/s
 const POINTER_REPULSION_RADIUS = 116;
 const POINTER_REPULSION_STRENGTH = 1800;
 
-const REF_PARTICLE_COUNT = 2000;
-const BASE_RADIUS = 3.2;
-const MIN_RADIUS = 1.3;
-const MAX_RADIUS = 4.5;
+// 「ふつう」の粒の半径。「細かい」は面積が半分になるよう 1/√2 倍にする。
+const BASE_RADIUS = 4.5;
 const PARTICLE_SIZES = {
   normal: { multiplier: 1, radiusScale: 1, neckScale: 1 },
   fine: { multiplier: 2, radiusScale: Math.SQRT1_2, neckScale: .5 },
@@ -121,6 +119,8 @@ let activeTheme = "room";
 
 let PARTICLE_RADIUS = BASE_RADIUS;
 let particles = [];
+// 描画用に色ごとにまとめた粒。粒の入れ替えと色の変更のときだけ作り直す。
+let particlesByColor = new Map();
 let cellSize = PARTICLE_RADIUS * 3;
 let gridCols = 1;
 let gridRows = 1;
@@ -150,19 +150,26 @@ class Particle {
   }
 }
 
-// 粒子半径は要求粒子数に応じて動的に決める。
-// 粒子数が増えるほど半径を小さくし、上球に収まりやすくする。
-function computeRadius(count, size = particleSize) {
-  const setting = PARTICLE_SIZES[size];
-  const normalCount = count / setting.multiplier;
-  const r = BASE_RADIUS * Math.sqrt(REF_PARTICLE_COUNT / normalCount);
-  return Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, r)) * setting.radiusScale;
+function computeRadius(size = particleSize) {
+  return BASE_RADIUS * PARTICLE_SIZES[size].radiusScale;
+}
+
+function groupParticlesByColor() {
+  particlesByColor = new Map();
+  for (const p of particles) {
+    let coloredParticles = particlesByColor.get(p.color);
+    if (!coloredParticles) {
+      coloredParticles = [];
+      particlesByColor.set(p.color, coloredParticles);
+    }
+    coloredParticles.push(p);
+  }
 }
 
 // 上球内に、行ごとに粒子を敷き詰める形で初期配置する。
 function initParticles(requestedCount) {
   pairsValid = false;
-  PARTICLE_RADIUS = computeRadius(requestedCount);
+  PARTICLE_RADIUS = computeRadius();
   cellSize = PARTICLE_RADIUS * 3;
   gridCols = Math.max(1, Math.ceil(W / cellSize));
   gridRows = Math.max(1, Math.ceil(H / cellSize));
@@ -193,6 +200,7 @@ function initParticles(requestedCount) {
     }
     y += spacingY;
   }
+  groupParticlesByColor();
 
   document.getElementById("particleActual").textContent =
     `配置粒子数: ${particles.length} / 要求: ${requestedCount}`;
@@ -618,16 +626,6 @@ function draw() {
   glassPath();
   ctx.clip();
   // 砂粒子
-  const particlesByColor = new Map();
-  for (let i = 0; i < particles.length; i++) {
-    const p = particles[i];
-    let coloredParticles = particlesByColor.get(p.color);
-    if (!coloredParticles) {
-      coloredParticles = [];
-      particlesByColor.set(p.color, coloredParticles);
-    }
-    coloredParticles.push(p);
-  }
   for (const [color, coloredParticles] of particlesByColor) {
     // 粒の下側にごく小さな影を置き、背景から浮いて見えるのを抑える。
     ctx.beginPath();
@@ -750,6 +748,7 @@ function applyTheme(themeName) {
   for (let i = 0; i < particles.length; i++) {
     particles[i].color = theme.colors[(Math.random() * theme.colors.length) | 0];
   }
+  groupParticlesByColor();
   sceneArt?.setAttribute?.("aria-hidden", activeTheme === "room" ? "false" : "true");
   draw();
 }
