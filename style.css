@@ -4,6 +4,11 @@
   --muted: #69715f;
   --accent: #697c59;
 }
+/* テーマ（script.js が <html data-theme> を切り替える）ごとのアクセント色 */
+:root[data-theme="sunset"] { --accent: #b86152; }
+:root[data-theme="seaside"] { --accent: #4e9295; }
+:root[data-theme="forest"] { --accent: #54735c; }
+:root[data-theme="night"] { --accent: #496789; }
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -137,22 +142,20 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
 
 #neckWidthValue { min-width: 44px; font-variant-numeric: tabular-nums; }
 
-.scene[data-theme="sunset"] {
+:root[data-theme="sunset"] .scene {
   background: #e9a06f url("assets/sunset-painterly.png") center / cover no-repeat;
 }
-.scene[data-theme="seaside"] {
+:root[data-theme="seaside"] .scene {
   background: #8fcbd7 url("assets/seaside-painterly.png") center / cover no-repeat;
 }
-.scene[data-theme="forest"] {
+:root[data-theme="forest"] .scene {
   background: #a9c5ae url("assets/forest-painterly.png") center / cover no-repeat;
 }
-.scene[data-theme="night"] {
+:root[data-theme="night"] .scene {
   background: #1b3154 url("assets/night-painterly.png") center / cover no-repeat;
 }
-.scene[data-theme="sunset"] .scene-art,
-.scene[data-theme="seaside"] .scene-art,
-.scene[data-theme="forest"] .scene-art,
-.scene[data-theme="night"] .scene-art { display: none; }
+/* 部屋以外のテーマでは、部屋のイラストを隠して背景画像を見せる */
+:root[data-theme]:not([data-theme="room"]) .scene-art { display: none; }
 
 /* 森・夜空: 背景画像と同じ cover 配置の層に、木洩れ日や流れ星を重ねる */
 .scene { container-type: size; }
@@ -168,8 +171,8 @@ input[type="range"] { flex: 1; min-width: 0; min-height: 32px; margin: 0; accent
   container-type: size;
   pointer-events: none;
 }
-.scene[data-theme="night"] .night-layer,
-.scene[data-theme="forest"] .forest-layer { display: block; }
+:root[data-theme="night"] .night-layer,
+:root[data-theme="forest"] .forest-layer { display: block; }
 
 /* 流れ星: 回転した座標系の +x 方向へ流れる。先端が右端 */
 .shooting-star {

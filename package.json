@@ -1,6 +1,7 @@
 {
   "name": "hourglass",
   "private": true,
+  "type": "module",
   "scripts": {
     "test": "node tests/physics.cjs && node tests/particle-size.cjs"
   }
